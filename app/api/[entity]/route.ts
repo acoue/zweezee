@@ -126,20 +126,40 @@ export async function POST(
         break;
       }
 
-      case "timesheets":
+      case "timesheets": {
         result = await prisma.timesheetEntry.create({
           data: {
             date: dt(body.date)!,
             activity: body.activity,
             hours: Number(body.hours),
+
+            scope: body.scope || "PROJECT",
+
             projectId: body.projectId,
+
+            workItemId:
+              body.scope === "MAINTENANCE" &&
+                body.workItemId
+                ? body.workItemId
+                : null,
           },
+
           include: {
             project: true,
+
+            workItem: {
+              select: {
+                id: true,
+                reference: true,
+                title: true,
+                type: true,
+              },
+            },
           },
         });
 
         break;
+      }
 
       default:
         return NextResponse.json(

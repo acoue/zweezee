@@ -89,14 +89,38 @@ export async function PUT(
       });
     else if (entity === "timesheets")
       x = await prisma.timesheetEntry.update({
-        where: { id },
+        where: {
+          id,
+        },
+
         data: {
           date: dt(b.date)!,
           activity: b.activity,
           hours: Number(b.hours),
+
+          scope: b.scope,
+
           projectId: b.projectId,
+
+          workItemId:
+            b.scope === "MAINTENANCE" &&
+              b.workItemId
+              ? b.workItemId
+              : null,
         },
-        include: { project: true },
+
+        include: {
+          project: true,
+
+          workItem: {
+            select: {
+              id: true,
+              reference: true,
+              title: true,
+              type: true,
+            },
+          },
+        },
       });
     else
       return NextResponse.json({ error: "Entité inconnue" }, { status: 404 });
