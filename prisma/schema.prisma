@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Health {
+  GREEN
+  ORANGE
+  RED
+}
+
+enum ActionStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  DONE
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum EventType {
+  COMMITTEE
+  MEETING
+  MILESTONE
+  ACTION
+  DECISION
+  RISK
+}
+
+enum WorkItemType {
+  TASK
+  BUG
+  EVOLUTION
+  INCIDENT
+}
+
+enum WorkItemStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  DONE
+  CANCELLED
+}
+
+enum TimesheetScope {
+  PROJECT
+  MAINTENANCE
+}
+
+model Project {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+
+  projectEnabled     Boolean @default(true)
+  maintenanceEnabled Boolean @default(false)
+
+  phase    String?
+  progress Int?
+  health   Health  @default(GREEN)
+  color    String  @default("sky")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  actions    Action[]
+  risks      Risk[]
+  milestones Milestone[]
+  events     Event[]
+  timesheets TimesheetEntry[]
+  workItems  WorkItem[]
+}
+
+model WorkItem {
+  id          String  @id @default(cuid())
+  reference   String  @unique
+  title       String
+  description String?
+
+  type     WorkItemType
+  status   WorkItemStatus @default(TODO)
+  priority Priority       @default(MEDIUM)
+
+  owner   String?
+  dueDate DateTime?
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  timesheets TimesheetEntry[]
+}
+
+model Action {
+  id          String       @id @default(cuid())
+  reference   String       @unique
+  title       String
+  description String?
+  owner       String?
+  dueDate     DateTime?
+  status      ActionStatus @default(TODO)
+  priority    Priority     @default(MEDIUM)
+  source      String?
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Risk {
+  id          String  @id @default(cuid())
+  reference   String  @unique
+  title       String
+  probability Int
+  impact      Int
+  level       String
+  owner       String?
+  mitigation  String?
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Milestone {
+  id        String   @id @default(cuid())
+  reference String   @unique
+  title     String
+  dueDate   DateTime
+  status    String   @default("PLANNED")
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Event {
+  id        String    @id @default(cuid())
+  reference String    @unique
+  title     String
+  startsAt  DateTime
+  endsAt    DateTime?
+  type      EventType
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model TimesheetEntry {
+  id       String         @id @default(cuid())
+  date     DateTime
+  activity String
+  hours    Decimal        @db.Decimal(5, 2)
+  scope    TimesheetScope @default(PROJECT)
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  workItemId String?
+  workItem   WorkItem? @relation(fields: [workItemId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId, date])
+  @@index([workItemId])
+}

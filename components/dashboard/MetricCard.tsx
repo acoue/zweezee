@@ -1,0 +1,1 @@
+export default function MetricCard({tone,value,label}:{tone:string;value:number|string;label:string}){return <div className={`metric ${tone}`}><b style={{fontSize:28}}>{value}</b><div>{label}</div></div>}

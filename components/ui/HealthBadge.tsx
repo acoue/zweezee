@@ -1,0 +1,1 @@
+import {healthLabels} from "@/lib/formatters";import type {Health} from "@/types";export default function HealthBadge({health}:{health:Health}){return <span className={`health ${health}`}>{healthLabels[health]}</span>}

@@ -1,0 +1,1 @@
+import {Pencil,Trash2} from "lucide-react";export default function EntityActions({onEdit,onDelete}:{onEdit:()=>void;onDelete:()=>void}){return <div className="actions"><button className="btn ghost" onClick={onEdit} aria-label="Modifier"><Pencil size={15}/></button><button className="btn danger" onClick={onDelete} aria-label="Supprimer"><Trash2 size={15}/></button></div>}

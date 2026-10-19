@@ -1,0 +1,7 @@
+services:
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://userdb:userdb@10.10.200.13:5432/zweezee?schema=public
+    ports:
+      - "5000:3000"

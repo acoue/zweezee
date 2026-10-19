@@ -1,0 +1,64 @@
+{
+  "workbench.colorTheme": "Atom One Dark",
+  "files.autoSave": "afterDelay",
+  "window.zoomLevel": -1,
+  "editor.minimap.enabled": false,
+  "editor.formatOnPaste": false,
+  "editor.formatOnSave": false,
+  "editor.renderWhitespace": "trailing",
+  "editor.linkedEditing": true,
+  "editor.suggest.insertMode": "replace",
+  "editor.acceptSuggestionOnCommitCharacter": false,
+  "workbench.tree.indent": 15,
+  "workbench.editor.enablePreview": false,
+  "emmet.triggerExpansionOnTab": true,
+  "editor.fontFamily": "Consolas, 'Courier New', monospace",
+  "workbench.iconTheme": "material-icon-theme",
+  "gitlens.currentLine.enabled": false,
+  "gitlens.codeLens.enabled": false,
+  "gitlens.hovers.currentLine.over": "line",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "workbench.colorCustomizations": {
+    "statusBar.background": "#1A1A1A",
+    "statusBar.noFolderBackground": "#212121",
+    "statusBar.debuggingBackground": "#263238",
+    "statusBar.foreground": "#ffffff",
+    "statusBarItem.activeBackground": "#21252b",
+    "titleBar.activeBackground": "#191919",
+    "titleBar.inactiveBackground": "#191919",
+    "titleBar.activeForeground": "#ffffff",
+    "sideBar.background": "#21252b",
+    "activityBar.background": "#1A1A1A",
+    "activityBar.inactiveForeground": "#767272",
+    "activityBar.activeFocusBorder": "#212121",
+    "activityBarBadge.background": "#7471ee",
+    "activityBarTop.background": "#21252b",
+    "activityBar.activeBackground": "#1d67d6",
+    "statusBarItem.remoteBackground": "#1d67d6",
+    "statusBarItem.hoverBackground": "#929569"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[dockercompose]": {
+    "editor.defaultFormatter": "docker.docker"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+  },
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  },
+  "git.autofetch": false,
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.git/**": true,
+    "**/dist/**": true,
+    "**/build/**": true
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "js/ts.tsserver.automaticTypeAcquisition.enabled": false,
+  "editor.codeLens": false
+}

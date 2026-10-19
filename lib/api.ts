@@ -1,0 +1,1 @@
+import {NextResponse} from "next/server"; export const ok=(x:any,s=200)=>NextResponse.json(x,{status:s}); export const date=(x:any)=>x?new Date(x):null;
