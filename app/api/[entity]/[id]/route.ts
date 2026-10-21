@@ -38,17 +38,52 @@ export async function PUT(
       });
     else if (entity === "actions")
       x = await prisma.action.update({
-        where: { id },
+        where: {
+          id,
+        },
+
         data: {
           title: b.title,
-          owner: b.owner,
-          dueDate: dt(b.dueDate),
-          status: b.status,
-          priority: b.priority,
-          source: b.source,
-          projectId: b.projectId,
+
+          description:
+            b.description || null,
+
+          startDate:
+            b.startDate
+              ? new Date(b.startDate)
+              : null,
+
+          dueDate:
+            b.dueDate
+              ? new Date(b.dueDate)
+              : null,
+
+          estimatedHours:
+            b.estimatedHours !== null &&
+              b.estimatedHours !== undefined &&
+              b.estimatedHours !== ""
+              ? Number(b.estimatedHours)
+              : null,
+
+          owner:
+            b.owner || null,
+
+          status:
+            b.status,
+
+          priority:
+            b.priority,
+
+          source:
+            b.source || null,
+
+          projectId:
+            b.projectId,
         },
-        include: { project: true },
+
+        include: {
+          project: true,
+        },
       });
     else if (entity === "risks")
       x = await prisma.risk.update({
@@ -64,29 +99,6 @@ export async function PUT(
         },
         include: { project: true },
       });
-    else if (entity === "events")
-      x = await prisma.event.update({
-        where: { id },
-        data: {
-          title: b.title,
-          startsAt: dt(b.startsAt)!,
-          endsAt: dt(b.endsAt),
-          type: b.type,
-          projectId: b.projectId,
-        },
-        include: { project: true },
-      });
-    else if (entity === "milestones")
-      x = await prisma.milestone.update({
-        where: { id },
-        data: {
-          title: b.title,
-          dueDate: dt(b.dueDate)!,
-          status: b.status,
-          projectId: b.projectId,
-        },
-        include: { project: true },
-      });
     else if (entity === "timesheets")
       x = await prisma.timesheetEntry.update({
         where: {
@@ -94,25 +106,31 @@ export async function PUT(
         },
 
         data: {
-          date: dt(b.date)!,
-          activity: b.activity,
-          hours: Number(b.hours),
+          date:
+            new Date(
+              b.date
+            ),
 
-          scope: b.scope,
+          hours:
+            Number(
+              b.hours
+            ),
 
-          projectId: b.projectId,
+          activity:
+            b.activity,
 
-          workItemId:
-            b.scope === "MAINTENANCE" &&
-              b.workItemId
-              ? b.workItemId
-              : null,
+          projectId:
+            b.projectId,
+
+          actionId:
+            b.actionId ||
+            null,
         },
 
         include: {
           project: true,
 
-          workItem: {
+          action: {
             select: {
               id: true,
               reference: true,
@@ -125,8 +143,23 @@ export async function PUT(
     else
       return NextResponse.json({ error: "Entité inconnue" }, { status: 404 });
     return NextResponse.json(x);
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 400 });
+  } catch (error) {
+    console.error(
+      "Erreur modification",
+      error
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Erreur lors de la modification",
+      },
+      {
+        status: 400,
+      }
+    );
   }
 }
 export async function DELETE(
@@ -136,16 +169,10 @@ export async function DELETE(
   const { entity, id } = await params;
   try {
     if (entity === "projects") await prisma.project.delete({ where: { id } });
-    else if (entity === "actions")
-      await prisma.action.delete({ where: { id } });
+    else if (entity === "actions") await prisma.action.delete({ where: { id } });
     else if (entity === "risks") await prisma.risk.delete({ where: { id } });
-    else if (entity === "events") await prisma.event.delete({ where: { id } });
-    else if (entity === "milestones")
-      await prisma.milestone.delete({ where: { id } });
-    else if (entity === "timesheets")
-      await prisma.timesheetEntry.delete({ where: { id } });
-    else
-      return NextResponse.json({ error: "Entité inconnue" }, { status: 404 });
+    else if (entity === "timesheets") await prisma.timesheetEntry.delete({ where: { id } });
+    else return NextResponse.json({ error: "Entité inconnue" }, { status: 404 });
     return NextResponse.json({ ok: true });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 400 });

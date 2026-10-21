@@ -1,11 +1,10 @@
 import { Pencil, Plus } from "lucide-react";
 
 import CrudList from "@/components/crud/CrudList";
-import MaintenanceView from "@/components/maintenance/MaintenanceView";
 import HealthBadge from "@/components/ui/HealthBadge";
 import { entityConfigs } from "@/lib/config/entities";
 
-import type { AppData, EntityName, Project, WorkItem } from "@/types";
+import type { AppData, EntityName, Project } from "@/types";
 
 /**
  * Entites rattachees au cycle projet classique.
@@ -16,9 +15,7 @@ import type { AppData, EntityName, Project, WorkItem } from "@/types";
  */
 const projectEntities: EntityName[] = [
   "actions",
-  "risks",
-  "milestones",
-  "events",
+  "risks"
 ];
 
 interface ProjectDetailProps {
@@ -27,20 +24,10 @@ interface ProjectDetailProps {
 
   /** Modification des informations generales du projet. */
   onEditProject: () => void;
-
   /** CRUD generique : actions, risques, jalons et evenements. */
   onAdd: (entity: EntityName, defaults?: Record<string, unknown>) => void;
-
   onEdit: (entity: EntityName, item: Record<string, unknown>) => void;
-
   onDelete: (entity: EntityName, id: string) => void;
-
-  /** CRUD specifique aux elements de maintenance. */
-  onAddWorkItem: (project: Project) => void;
-
-  onEditWorkItem: (project: Project, item: WorkItem) => void;
-
-  onDeleteWorkItem: (id: string) => void;
 }
 
 export default function ProjectDetail({
@@ -50,9 +37,6 @@ export default function ProjectDetail({
   onAdd,
   onEdit,
   onDelete,
-  onAddWorkItem,
-  onEditWorkItem,
-  onDeleteWorkItem,
 }: ProjectDetailProps) {
   /**
    * Retourne les objets d'une entite appartenant
@@ -64,22 +48,12 @@ export default function ProjectDetail({
     return rows.filter((item) => item.projectId === project.id);
   };
 
-  /** Elements de maintenance du projet courant. */
-  const projectWorkItems = data.workItems.filter(
-    (item) => item.projectId === project.id,
-  );
-
   /** Actions projet encore ouvertes. */
   const openActions = data.actions.filter(
     (action) =>
       action.projectId === project.id &&
       action.status !== "DONE" &&
       action.status !== "CANCELLED",
-  );
-
-  /** Elements de maintenance encore ouverts. */
-  const openWorkItems = projectWorkItems.filter(
-    (item) => item.status !== "DONE" && item.status !== "CANCELLED",
   );
 
   return (
@@ -157,14 +131,6 @@ export default function ProjectDetail({
             <h3>{openActions.length}</h3>
           </div>
         )}
-
-        {project.maintenanceEnabled && (
-          <div className="card">
-            <small className="muted">Maintenance ouverte</small>
-
-            <h3>{openWorkItems.length}</h3>
-          </div>
-        )}
       </div>
 
       {/* ================================= */}
@@ -223,21 +189,6 @@ export default function ProjectDetail({
               </section>
             );
           })}
-        </section>
-      )}
-
-      {/* ================================= */}
-      {/* MAINTENANCE / RUN                 */}
-      {/* ================================= */}
-
-      {project.maintenanceEnabled && (
-        <section style={{ marginTop: 40 }}>
-          <MaintenanceView
-            workItems={projectWorkItems}
-            onAdd={() => onAddWorkItem(project)}
-            onEdit={(item) => onEditWorkItem(project, item)}
-            onDelete={(id) => onDeleteWorkItem(id)}
-          />
         </section>
       )}
 

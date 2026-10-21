@@ -450,3 +450,293 @@ textarea {
     width: 100%;
   }
 }
+
+.agenda-toolbar {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 20px;
+  align-items: end;
+}
+
+.agenda-month {
+  min-width: 150px;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.agenda-legend {
+  gap: 8px;
+}
+
+.agenda-kind {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.agenda-kind.start {
+  color: #4338ca;
+  background: #eef2ff;
+}
+
+.agenda-kind.due {
+  color: #0369a1;
+  background: #f0f9ff;
+}
+
+.agenda-kind.overdue {
+  color: #be123c;
+  background: #fff1f2;
+}
+
+.agenda-list {
+  display: grid;
+  gap: 14px;
+}
+
+.agenda-day {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 16px;
+}
+
+.agenda-date {
+  padding: 17px 5px;
+  color: #64748b;
+  text-transform: capitalize;
+}
+
+.agenda-day-events {
+  display: grid;
+  gap: 8px;
+}
+
+.agenda-entry {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 76px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+}
+
+.agenda-entry-marker {
+  align-self: stretch;
+  width: 5px;
+  flex: 0 0 5px;
+  background: #cbd5e1;
+}
+
+.agenda-entry-content {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 0;
+}
+
+.agenda-entry-title {
+  margin: 5px 0 3px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.agenda-entry > .btn {
+  margin-right: 12px;
+}
+
+.agenda-action .agenda-entry-marker {
+  background: #c7d2fe;
+}
+
+.agenda-task .agenda-entry-marker {
+  background: #bfdbfe;
+}
+
+.agenda-bug .agenda-entry-marker {
+  background: #fecdd3;
+}
+
+.agenda-incident .agenda-entry-marker {
+  background: #fed7aa;
+}
+
+.agenda-evolution .agenda-entry-marker {
+  background: #ddd6fe;
+}
+
+.agenda-milestone .agenda-entry-marker {
+  background: #a7f3d0;
+}
+
+.agenda-entry.is-overdue {
+  border-color: #fecdd3;
+  background: #fffafb;
+}
+
+.agenda-entry.is-overdue .agenda-entry-marker {
+  background: #fda4af;
+}
+
+@media (max-width: 850px) {
+  .agenda-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .agenda-day {
+    grid-template-columns: 1fr;
+  }
+
+  .agenda-date {
+    padding-bottom: 0;
+  }
+}
+.timesheet-estimated-section {
+  margin-top: 34px;
+}
+
+.estimate-values {
+  display: flex;
+  gap: 28px;
+  text-align: right;
+}
+
+.estimate-values div {
+  min-width: 68px;
+}
+
+.estimate-values small,
+.estimate-values strong {
+  display: block;
+}
+
+.estimate-values small {
+  margin-bottom: 3px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.estimate-bar {
+  height: 7px;
+  margin-top: 13px;
+  overflow: hidden;
+  background: #f1f5f9;
+  border-radius: 999px;
+}
+
+.estimate-bar span {
+  display: block;
+  height: 100%;
+  background: #a7f3d0;
+  border-radius: inherit;
+}
+
+.estimate-bar.overrun span {
+  background: #fda4af;
+}
+
+.estimate-warning {
+  padding: 3px 8px;
+  color: #be123c;
+  font-size: 11px;
+  font-weight: 600;
+  background: #fff1f2;
+  border-radius: 999px;
+}
+
+.estimate-overrun {
+  background: #fff7f8 !important;
+  border-color: #fecdd3 !important;
+}
+
+.estimate-ok {
+  background: #f5fdf9 !important;
+  border-color: #d1fae5 !important;
+}
+
+.text-overrun {
+  color: #be123c;
+}
+
+@media (max-width: 720px) {
+  .estimate-values {
+    gap: 12px;
+    margin-top: 12px;
+    text-align: left;
+  }
+}
+.dashboard-bottom-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 24px;
+  margin-top: 34px;
+}
+
+.dashboard-section-icon {
+  color: #818cf8;
+}
+
+.dashboard-warning-icon {
+  color: #f59e0b;
+}
+
+.dashboard-due-date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.dashboard-month-total {
+  padding: 8px 12px;
+  color: #4338ca;
+  font-size: 18px;
+  font-weight: 700;
+  background: #eef2ff;
+  border-radius: 12px;
+}
+
+.dashboard-hours-list {
+  display: grid;
+  gap: 18px;
+}
+
+.dashboard-hours-row {
+  display: grid;
+  gap: 7px;
+}
+
+.dashboard-hours-bar {
+  height: 8px;
+  overflow: hidden;
+  background: #f1f5f9;
+  border-radius: 999px;
+}
+
+.dashboard-hours-bar span {
+  display: block;
+  height: 100%;
+  background: #c7d2fe;
+  border-radius: inherit;
+}
+
+.dashboard-alert-card {
+  background: #fffbf7 !important;
+  border-color: #fde7ca !important;
+}
+
+.dashboard-alert-card svg {
+  color: #d97706;
+}
+
+@media (max-width: 1000px) {
+  .dashboard-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}

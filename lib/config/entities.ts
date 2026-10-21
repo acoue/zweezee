@@ -48,22 +48,80 @@ export const entityConfigs: Record<EntityName, EntityConfig> = {
   actions: {
     title: "Actions",
     singular: "action",
+
     fields: [
-      { key: "title", label: "Titre", type: "text", required: true },
-      { key: "projectId", label: "Projet", type: "project", required: true },
-      { key: "owner", label: "Responsable", type: "text" },
-      { key: "dueDate", label: "Échéance", type: "date" },
+      {
+        key: "type",
+        label: "Type",
+        type:
+          "select:ACTION|TASK|BUG|INCIDENT|EVOLUTION|JALON",
+        required: true,
+      },
+
+      {
+        key: "title",
+        label: "Titre",
+        type: "text",
+        required: true,
+      },
+
+      {
+        key: "description",
+        label: "Description",
+        type: "text",
+        full: true,
+      },
+
+      {
+        key: "projectId",
+        label: "Projet",
+        type: "project",
+        required: true,
+      },
+
+      {
+        key: "owner",
+        label: "Responsable",
+        type: "text",
+      },
+
+      {
+        key: "startDate",
+        label: "Date de début",
+        type: "date",
+      },
+
+      {
+        key: "dueDate",
+        label: "Échéance",
+        type: "date",
+      },
+
+      {
+        key: "estimatedHours",
+        label: "Charge estimée (h)",
+        type: "number",
+      },
+
       {
         key: "status",
         label: "Statut",
-        type: "select:TODO|IN_PROGRESS|BLOCKED|DONE|CANCELLED",
+        type:
+          "select:TODO|IN_PROGRESS|BLOCKED|DONE|CANCELLED",
       },
+
       {
         key: "priority",
         label: "Priorité",
-        type: "select:LOW|MEDIUM|HIGH|CRITICAL",
+        type:
+          "select:LOW|MEDIUM|HIGH|CRITICAL",
       },
-      { key: "source", label: "Origine", type: "text" },
+
+      {
+        key: "source",
+        label: "Origine",
+        type: "text",
+      },
     ],
   },
   risks: {
@@ -85,35 +143,6 @@ export const entityConfigs: Record<EntityName, EntityConfig> = {
         label: "Plan de traitement",
         type: "text",
         full: true,
-      },
-    ],
-  },
-  events: {
-    title: "Agenda",
-    singular: "événement",
-    fields: [
-      { key: "title", label: "Titre", type: "text", required: true },
-      { key: "projectId", label: "Projet", type: "project", required: true },
-      { key: "startsAt", label: "Début", type: "date", required: true },
-      { key: "endsAt", label: "Fin", type: "date" },
-      {
-        key: "type",
-        label: "Type",
-        type: "select:COMMITTEE|MEETING|MILESTONE|ACTION|DECISION|RISK",
-      },
-    ],
-  },
-  milestones: {
-    title: "Jalons",
-    singular: "jalon",
-    fields: [
-      { key: "title", label: "Titre", type: "text", required: true },
-      { key: "projectId", label: "Projet", type: "project", required: true },
-      { key: "dueDate", label: "Échéance", type: "date", required: true },
-      {
-        key: "status",
-        label: "Statut",
-        type: "select:PLANNED|IN_PROGRESS|DONE|CANCELLED",
       },
     ],
   },

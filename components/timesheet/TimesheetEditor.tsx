@@ -2,134 +2,108 @@
 
 import { useMemo, useState } from "react";
 
-import type {
-  Project,
-  TimesheetEntry,
-  TimesheetScope,
-  WorkItem,
-} from "@/types";
+import type { Action, Project, TimesheetEntry } from "@/types";
 
 interface TimesheetEditorProps {
   entry?: TimesheetEntry | null;
+
   projects: Project[];
-  workItems: WorkItem[];
+
+  actions: Action[];
+
   onSave: (payload: Record<string, unknown>) => Promise<void> | void;
+
   onClose: () => void;
 }
 
 export default function TimesheetEditor({
   entry,
   projects,
-  workItems,
+  actions,
   onSave,
   onClose,
 }: TimesheetEditorProps) {
+
   const [projectId, setProjectId] = useState(
-    entry?.projectId ?? projects[0]?.id ?? ""
+    entry?.projectId ?? projects[0]?.id ?? "",
   );
-
-  const [scope, setScope] = useState<TimesheetScope>(
-    entry?.scope ?? "PROJECT"
-  );
-
-  const availableWorkItems = useMemo(
+  const [actionId, setActionId] = useState(entry?.actionId ?? "");
+  const availableActions = useMemo(
     () =>
-      workItems.filter(
-        (item) => item.projectId === projectId
-      ),
-    [workItems, projectId]
-  );
+      actions
+        .filter((action) => action.projectId === projectId)
+        .sort((a, b) => a.reference.localeCompare(b.reference)),
 
-  const selectedProject = projects.find(
-    (project) => project.id === projectId
+    [actions, projectId],
   );
-
-  function handleProjectChange(
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) {
+  function handleProjectChange(event: React.ChangeEvent<HTMLSelectElement>) {
     const nextProjectId = event.target.value;
-    const nextProject = projects.find(
-      (project) => project.id === nextProjectId
-    );
 
     setProjectId(nextProjectId);
 
-    if (
-      scope === "MAINTENANCE" &&
-      !nextProject?.maintenanceEnabled
-    ) {
-      setScope("PROJECT");
-    }
+    setActionId("");
   }
 
-  async function handleSubmit(
-    event: React.FormEvent<HTMLFormElement>
-  ) {
+  /*
+   * Soumission du formulaire.
+   */
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const form = new FormData(event.currentTarget);
-    const workItemId = String(
-      form.get("workItemId") ?? ""
-    );
 
     const payload = {
       date: String(form.get("date") ?? ""),
+
       projectId,
-      scope,
+
+      actionId: actionId || null,
+
       hours: Number(form.get("hours") ?? 0),
+
       activity: String(form.get("activity") ?? ""),
-      workItemId:
-        scope === "MAINTENANCE" && workItemId
-          ? workItemId
-          : null,
     };
 
     await onSave(payload);
   }
 
+  /*
+   * Date proposée dans le formulaire.
+   */
   const defaultDate = entry?.date
     ? new Date(entry.date).toISOString().slice(0, 10)
     : new Date().toISOString().slice(0, 10);
 
-  const canUseProject =
-    selectedProject?.projectEnabled ?? false;
-
-  const canUseMaintenance =
-    selectedProject?.maintenanceEnabled ?? false;
-
   return (
     <div className="modal">
-      <form
-        className="modalbox"
-        onSubmit={handleSubmit}
-      >
+      <form className="modalbox" onSubmit={handleSubmit}>
+        {/* ========================= */}
+        {/* EN-TÊTE                  */}
+        {/* ========================= */}
+
         <div className="between">
           <div>
-            <h2>
-              {entry
-                ? "Modifier le temps saisi"
-                : "Saisir du temps"}
-            </h2>
+            <h2>{entry ? "Modifier le temps saisi" : "Saisir du temps"}</h2>
 
             <p className="muted">
-              La charge sera intégrée au récapitulatif
-              mensuel du projet.
+              Enregistre le temps réellement passé sur un projet ou une action.
             </p>
           </div>
 
-          <button
-            type="button"
-            className="btn ghost"
-            onClick={onClose}
-          >
+          <button type="button" className="btn ghost" onClick={onClose}>
             Fermer
           </button>
         </div>
 
+        {/* ========================= */}
+        {/* FORMULAIRE               */}
+        {/* ========================= */}
+
         <div className="formgrid">
+          {/* DATE */}
+
           <label>
             Date
-
             <input
               className="input"
               type="date"
@@ -139,9 +113,10 @@ export default function TimesheetEditor({
             />
           </label>
 
+          {/* PROJET */}
+
           <label>
             Projet / application
-
             <select
               className="input"
               name="projectId"
@@ -149,91 +124,44 @@ export default function TimesheetEditor({
               value={projectId}
               onChange={handleProjectChange}
             >
-              <option value="">
-                Sélectionner
-              </option>
+              <option value="">Sélectionner</option>
 
               {projects.map((project) => (
-                <option
-                  key={project.id}
-                  value={project.id}
-                >
+                <option key={project.id} value={project.id}>
                   {project.name}
                 </option>
               ))}
             </select>
           </label>
 
-          <fieldset className="full timesheet-scope">
-            <legend>Nature du temps</legend>
+          {/* ACTION */}
 
-            <label className="scope-option">
-              <input
-                type="radio"
-                name="scope"
-                value="PROJECT"
-                checked={scope === "PROJECT"}
-                disabled={!canUseProject}
-                onChange={() => setScope("PROJECT")}
-              />
+          <label className="full">
+            Action associée
+            <select
+              className="input"
+              name="actionId"
+              value={actionId}
+              onChange={(event) => setActionId(event.target.value)}
+            >
+              <option value="">Temps général sur le projet</option>
 
-              <span>
-                <strong>Projet / évolution</strong>
-                <small>
-                  Pilotage, conception, développement,
-                  recette ou préparation de mise en production.
-                </small>
-              </span>
-            </label>
+              {availableActions.map((action) => (
+                <option key={action.id} value={action.id}>
+                  {action.reference}
 
-            <label className="scope-option">
-              <input
-                type="radio"
-                name="scope"
-                value="MAINTENANCE"
-                checked={scope === "MAINTENANCE"}
-                disabled={!canUseMaintenance}
-                onChange={() => setScope("MAINTENANCE")}
-              />
+                  {" · "}
 
-              <span>
-                <strong>Maintenance / RUN</strong>
-                <small>
-                  Bug, incident, évolution légère ou tâche
-                  de maintien en conditions opérationnelles.
-                </small>
-              </span>
-            </label>
-          </fieldset>
-
-          {scope === "MAINTENANCE" && (
-            <label className="full">
-              Élément de maintenance facultatif
-
-              <select
-                className="input"
-                name="workItemId"
-                defaultValue={entry?.workItemId ?? ""}
-              >
-                <option value="">
-                  Activité RUN générale, sans ticket
+                  {action.title}
                 </option>
+              ))}
+            </select>
+          </label>
 
-                {availableWorkItems.map((item) => (
-                  <option
-                    key={item.id}
-                    value={item.id}
-                  >
-                    {item.reference} · {item.title}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
+          {/* TEMPS */}
 
           <label>
-            Temps passé en heures
-
+            Temps passé
             <input
               className="input"
               type="number"
@@ -242,59 +170,50 @@ export default function TimesheetEditor({
               max="24"
               step="0.25"
               required
-              defaultValue={
-                entry ? Number(entry.hours) : 1
-              }
+              defaultValue={entry ? Number(entry.hours) : 1}
             />
+            <small className="muted">
+              En heures, par tranche de 15 minutes.
+            </small>
           </label>
+
+          {/* ACTIVITÉ */}
 
           <label className="full">
             Activité réalisée
-
             <textarea
               className="input"
               name="activity"
               rows={4}
               required
               defaultValue={entry?.activity ?? ""}
-              placeholder="Ex. préparation du COSUI, analyse du bug, atelier métier..."
+              placeholder={
+                "Ex. préparation COSUI, correction du bug, atelier métier..."
+              }
             />
           </label>
         </div>
 
-        {!canUseProject && !canUseMaintenance && (
-          <p className="timesheet-warning">
-            Le projet sélectionné ne possède aucun mode
-            de suivi actif.
-          </p>
-        )}
+        {/* ========================= */}
+        {/* ACTIONS                  */}
+        {/* ========================= */}
 
         <div
           className="between"
-          style={{ marginTop: 24 }}
+          style={{
+            marginTop: 24,
+          }}
         >
-          <button
-            type="button"
-            className="btn ghost"
-            onClick={onClose}
-          >
+          <button type="button" className="btn ghost" onClick={onClose}>
             Annuler
           </button>
 
-          <button
-            type="submit"
-            className="btn"
-            disabled={
-              !projectId ||
-              (!canUseProject && !canUseMaintenance)
-            }
-          >
-            {entry
-              ? "Enregistrer les modifications"
-              : "Ajouter au mois"}
+          <button type="submit" className="btn" disabled={!projectId}>
+            {entry ? "Enregistrer les modifications" : "Ajouter au Timesheet"}
           </button>
         </div>
       </form>
+ 
     </div>
   );
 }

@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { generateReference } from "@/lib/referenceGenerator";
 import { NextResponse } from "next/server";
+import type { ActionType } from "@prisma/client"; import {
+  generateActionReference,
+  generateRiskReference,
+} from "@/lib/referenceGenerator";
 
 const dt = (value: unknown) => {
   if (!value) {
@@ -40,123 +43,202 @@ export async function POST(
         break;
 
       case "actions": {
-        const reference =
-          await generateReference("action");
+        const type =
+          (body.type ||
+            "ACTION") as ActionType;
 
-        result = await prisma.action.create({
-          data: {
-            reference,
-            title: body.title,
-            owner: body.owner || null,
-            dueDate: dt(body.dueDate),
-            status: body.status || "TODO",
-            priority: body.priority || "MEDIUM",
-            source: body.source || null,
-            projectId: body.projectId,
-          },
-          include: {
-            project: true,
-          },
-        });
+        const reference =
+          await generateActionReference(
+            type
+          );
+
+        result =
+          await prisma.action.create({
+            data: {
+              reference,
+              type,
+
+              title:
+                body.title,
+
+              description:
+                body.description ||
+                null,
+
+              startDate:
+                body.startDate
+                  ? new Date(
+                    body.startDate
+                  )
+                  : null,
+
+              dueDate:
+                body.dueDate
+                  ? new Date(
+                    body.dueDate
+                  )
+                  : null,
+
+              estimatedHours:
+                body.estimatedHours
+                  ? Number(
+                    body.estimatedHours
+                  )
+                  : null,
+
+              owner:
+                body.owner ||
+                null,
+
+              status:
+                body.status ||
+                "TODO",
+
+              priority:
+                body.priority ||
+                "MEDIUM",
+
+              source:
+                body.source ||
+                null,
+
+              projectId:
+                body.projectId,
+            },
+
+            include: {
+              project: true,
+            },
+          });
 
         break;
       }
 
       case "risks": {
         const reference =
-          await generateReference("risk");
+          await generateRiskReference();
 
-        result = await prisma.risk.create({
-          data: {
-            reference,
-            title: body.title,
-            probability: Number(body.probability),
-            impact: Number(body.impact),
-            level: body.level || "Modéré",
-            owner: body.owner || null,
-            mitigation: body.mitigation || null,
-            projectId: body.projectId,
-          },
-          include: {
-            project: true,
-          },
-        });
+        result =
+          await prisma.risk.create({
+            data: {
+              reference,
 
-        break;
-      }
+              title:
+                body.title,
 
-      case "milestones": {
-        const reference =
-          await generateReference("milestone");
+              probability:
+                Number(
+                  body.probability
+                ),
 
-        result = await prisma.milestone.create({
-          data: {
-            reference,
-            title: body.title,
-            dueDate: dt(body.dueDate)!,
-            status: body.status || "PLANNED",
-            projectId: body.projectId,
-          },
-          include: {
-            project: true,
-          },
-        });
+              impact:
+                Number(
+                  body.impact
+                ),
 
-        break;
-      }
+              level:
+                body.level ||
+                "Modéré",
 
-      case "events": {
-        const reference =
-          await generateReference("event");
+              owner:
+                body.owner ||
+                null,
 
-        result = await prisma.event.create({
-          data: {
-            reference,
-            title: body.title,
-            startsAt: dt(body.startsAt)!,
-            endsAt: dt(body.endsAt),
-            type: body.type || "MEETING",
-            projectId: body.projectId,
-          },
-          include: {
-            project: true,
-          },
-        });
+              mitigation:
+                body.mitigation ||
+                null,
+
+              projectId:
+                body.projectId,
+            },
+
+            include: {
+              project: true,
+            },
+          });
 
         break;
       }
+
+      // case "milestones": {
+      //   const reference =
+      //     await generateActionReference("milestone");
+
+      //   result = await prisma.milestone.create({
+      //     data: {
+      //       reference,
+      //       title: body.title,
+      //       dueDate: dt(body.dueDate)!,
+      //       status: body.status || "PLANNED",
+      //       projectId: body.projectId,
+      //     },
+      //     include: {
+      //       project: true,
+      //     },
+      //   });
+
+      //   break;
+      // }
+
+      // case "events": {
+      //   const reference =
+      //     await generateActionReference("event");
+
+      //   result = await prisma.event.create({
+      //     data: {
+      //       reference,
+      //       title: body.title,
+      //       startsAt: dt(body.startsAt)!,
+      //       endsAt: dt(body.endsAt),
+      //       type: body.type || "MEETING",
+      //       projectId: body.projectId,
+      //     },
+      //     include: {
+      //       project: true,
+      //     },
+      //   });
+
+      //   break;
+      // }
 
       case "timesheets": {
-        result = await prisma.timesheetEntry.create({
-          data: {
-            date: dt(body.date)!,
-            activity: body.activity,
-            hours: Number(body.hours),
+        result =
+          await prisma.timesheetEntry.create({
+            data: {
+              date:
+                new Date(
+                  body.date
+                ),
 
-            scope: body.scope || "PROJECT",
+              hours:
+                Number(
+                  body.hours
+                ),
 
-            projectId: body.projectId,
+              activity:
+                body.activity,
 
-            workItemId:
-              body.scope === "MAINTENANCE" &&
-                body.workItemId
-                ? body.workItemId
-                : null,
-          },
+              projectId:
+                body.projectId,
 
-          include: {
-            project: true,
+              actionId:
+                body.actionId ||
+                null,
+            },
 
-            workItem: {
-              select: {
-                id: true,
-                reference: true,
-                title: true,
-                type: true,
+            include: {
+              project: true,
+
+              action: {
+                select: {
+                  id: true,
+                  reference: true,
+                  title: true,
+                  type: true,
+                },
               },
             },
-          },
-        });
+          });
 
         break;
       }

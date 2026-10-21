@@ -13,14 +13,6 @@ enum Health {
   RED
 }
 
-enum ActionStatus {
-  TODO
-  IN_PROGRESS
-  BLOCKED
-  DONE
-  CANCELLED
-}
-
 enum Priority {
   LOW
   MEDIUM
@@ -28,33 +20,21 @@ enum Priority {
   CRITICAL
 }
 
-enum EventType {
-  COMMITTEE
-  MEETING
-  MILESTONE
+enum ActionType {
   ACTION
-  DECISION
-  RISK
-}
-
-enum WorkItemType {
   TASK
   BUG
-  EVOLUTION
   INCIDENT
+  EVOLUTION
+  JALON
 }
 
-enum WorkItemStatus {
+enum ActionStatus {
   TODO
   IN_PROGRESS
   BLOCKED
   DONE
   CANCELLED
-}
-
-enum TimesheetScope {
-  PROJECT
-  MAINTENANCE
 }
 
 model Project {
@@ -70,110 +50,83 @@ model Project {
   health   Health  @default(GREEN)
   color    String  @default("sky")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
   actions    Action[]
   risks      Risk[]
-  milestones Milestone[]
-  events     Event[]
   timesheets TimesheetEntry[]
-  workItems  WorkItem[]
-}
-
-model WorkItem {
-  id          String  @id @default(cuid())
-  reference   String  @unique
-  title       String
-  description String?
-
-  type     WorkItemType
-  status   WorkItemStatus @default(TODO)
-  priority Priority       @default(MEDIUM)
-
-  owner   String?
-  dueDate DateTime?
-
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  timesheets TimesheetEntry[]
 }
 
 model Action {
-  id          String       @id @default(cuid())
-  reference   String       @unique
+  id        String     @id @default(cuid())
+  reference String     @unique
+  type      ActionType @default(ACTION)
+
   title       String
   description String?
-  owner       String?
-  dueDate     DateTime?
-  status      ActionStatus @default(TODO)
-  priority    Priority     @default(MEDIUM)
-  source      String?
+
+  startDate DateTime?
+  dueDate   DateTime?
+
+  estimatedHours Decimal? @db.Decimal(6, 2)
+
+  owner    String?
+  status   ActionStatus @default(TODO)
+  priority Priority     @default(MEDIUM)
+
+  source String?
 
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
+  timesheets TimesheetEntry[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([dueDate])
+  @@index([type])
+  @@index([status])
 }
 
 model Risk {
-  id          String  @id @default(cuid())
-  reference   String  @unique
+  id        String @id @default(cuid())
+  reference String @unique
+
   title       String
   probability Int
   impact      Int
   level       String
-  owner       String?
-  mitigation  String?
+
+  owner      String?
+  mitigation String?
 
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-}
 
-model Milestone {
-  id        String   @id @default(cuid())
-  reference String   @unique
-  title     String
-  dueDate   DateTime
-  status    String   @default("PLANNED")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-}
-
-model Event {
-  id        String    @id @default(cuid())
-  reference String    @unique
-  title     String
-  startsAt  DateTime
-  endsAt    DateTime?
-  type      EventType
-
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  @@index([projectId])
 }
 
 model TimesheetEntry {
-  id       String         @id @default(cuid())
+  id       String   @id @default(cuid())
   date     DateTime
+  hours    Decimal  @db.Decimal(5, 2)
   activity String
-  hours    Decimal        @db.Decimal(5, 2)
-  scope    TimesheetScope @default(PROJECT)
 
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  workItemId String?
-  workItem   WorkItem? @relation(fields: [workItemId], references: [id], onDelete: SetNull)
+  actionId String?
+  action   Action? @relation(fields: [actionId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([projectId, date])
-  @@index([workItemId])
+  @@index([actionId])
 }
