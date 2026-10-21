@@ -28,9 +28,7 @@ interface ActionsViewProps {
 
 const typeLabels: Record<ActionType, string> = {
   ACTION: "Action",
-  TASK: "Tâche",
   BUG: "Bug",
-  INCIDENT: "Incident",
   EVOLUTION: "Évolution",
   JALON: "Jalon",
 };
@@ -43,14 +41,7 @@ const statusLabels: Record<ActionStatus, string> = {
   CANCELLED: "Annulée",
 };
 
-const actionTypes: ActionType[] = [
-  "ACTION",
-  "TASK",
-  "BUG",
-  "INCIDENT",
-  "EVOLUTION",
-  "JALON",
-];
+const actionTypes: ActionType[] = ["ACTION", "BUG", "EVOLUTION", "JALON"];
 
 export default function ActionsView({
   actions,

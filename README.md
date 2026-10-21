@@ -28,9 +28,7 @@ Types disponibles :
 | Type | Référence | Usage |
 |---|---|---|
 | `ACTION` | `ACT-0001` | Action de pilotage ou projet |
-| `TASK` | `TSK-0001` | Tâche opérationnelle |
 | `BUG` | `BUG-0001` | Correction d'anomalie |
-| `INCIDENT` | `INC-0001` | Incident |
 | `EVOLUTION` | `EVO-0001` | Évolution fonctionnelle ou technique |
 | `JALON` | `JAL-0001` | Jalon projet |
 
@@ -112,7 +110,7 @@ Le récapitulatif mensuel présente notamment :
 - détail des activités ;
 - comparaison estimé / réalisé pour les Actions disposant d'une estimation.
 
-Le temps Maintenance / RUN est déduit des types `BUG`, `INCIDENT`, `EVOLUTION` et `TASK`. Les types `ACTION` et `JALON` restent rattachés au pilotage Projet / évolution.
+Le temps Maintenance / RUN est déduit des types `BUG` et `EVOLUTION`. Les types `ACTION` et `JALON` restent rattachés au pilotage Projet / évolution.
 
 ### Dashboard
 
@@ -147,7 +145,7 @@ Agenda
   = Actions datées
 
 Maintenance / RUN
-  = Actions BUG / INCIDENT / EVOLUTION / TASK
+  = Actions BUG / EVOLUTION
 
 Jalons
   = Actions de type JALON
@@ -428,9 +426,7 @@ Exemples :
 
 ```text
 ACT-0001
-TSK-0001
 BUG-0001
-INC-0001
 EVO-0001
 JAL-0001
 RIS-0001

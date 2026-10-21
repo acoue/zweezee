@@ -32,7 +32,7 @@ export const entityConfigs: Record<EntityName, EntityConfig> = {
       },
       { key: "progress", label: "Avancement %", type: "number" },
       { key: "health", label: "Santé", type: "select:GREEN|ORANGE|RED" },
-      { key: "color", label: "Couleur", type: "select:sky|violet|emerald" },
+      { key: "color", label: "Couleur du projet", type: "select:sky|blue|indigo|violet|purple|pink|coral|orange|amber|lime|emerald|teal", },
       {
         key: "projectEnabled",
         label: "Suivi projet / évolution",
@@ -54,7 +54,7 @@ export const entityConfigs: Record<EntityName, EntityConfig> = {
         key: "type",
         label: "Type",
         type:
-          "select:ACTION|TASK|BUG|INCIDENT|EVOLUTION|JALON",
+          "select:ACTION|BUG|EVOLUTION|JALON",
         required: true,
       },
 

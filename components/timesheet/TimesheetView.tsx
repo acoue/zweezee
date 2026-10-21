@@ -60,7 +60,7 @@ function hoursLabel(value: number) {
  * Maintenance / RUN.
  */
 function isMaintenanceType(type?: string) {
-  return ["BUG", "INCIDENT", "EVOLUTION", "TASK"].includes(type ?? "");
+  return ["BUG", "EVOLUTION"].includes(type ?? "");
 }
 
 function actionTypeLabel(type?: string) {
@@ -68,14 +68,8 @@ function actionTypeLabel(type?: string) {
     case "ACTION":
       return "Action";
 
-    case "TASK":
-      return "Tâche";
-
     case "BUG":
       return "Bug";
-
-    case "INCIDENT":
-      return "Incident";
 
     case "EVOLUTION":
       return "Évolution";

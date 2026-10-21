@@ -6,12 +6,12 @@ import {
   CalendarClock,
   CircleAlert,
   Clock3,
+  ShieldAlert,
 } from "lucide-react";
-
 import MetricCard from "./MetricCard";
 import ProjectCard from "./ProjectCard";
-
 import type { AppData, Project } from "@/types";
+import { getProjectColor } from "@/lib/config/projectColors";
 
 interface DashboardProps {
   data: AppData;
@@ -266,35 +266,57 @@ export default function Dashboard({ data, onOpenProject }: DashboardProps) {
               marginTop: 12,
             }}
           >
-            {upcomingActions.map((action) => (
-              <div key={action.id} className="listitem">
-                <div className="between">
-                  <div>
-                    <div className="row">
-                      <strong>{action.reference}</strong>
+            {upcomingActions.map((action) => {
+              const project = data.projects.find(
+                (item) => item.id === action.projectId,
+              );
 
-                      <span className="pill">{action.type}</span>
+              const projectColor = getProjectColor(project?.color);
+
+              return (
+                <div
+                  key={action.id}
+                  className="listitem"
+                  style={{
+                    borderLeft: `4px solid ${projectColor.solid}`,
+                  }}
+                >
+                  <div className="between">
+                    <div>
+                      <div className="row">
+                        <strong>{action.reference}</strong>
+
+                        <span className="pill">{action.type}</span>
+                      </div>
+
+                      <div
+                        style={{
+                          marginTop: 4,
+                        }}
+                      >
+                        {action.title}
+                      </div>
+
+                      {project && (
+                        <small
+                          style={{
+                            color: projectColor.text,
+                          }}
+                        >
+                          {project.name}
+                        </small>
+                      )}
                     </div>
 
-                    <div
-                      style={{
-                        marginTop: 4,
-                      }}
-                    >
-                      {action.title}
+                    <div className="dashboard-due-date">
+                      <Clock3 size={14} />
+
+                      {new Date(action.dueDate!).toLocaleDateString("fr-FR")}
                     </div>
-
-                    <small className="muted">{action.project?.name}</small>
-                  </div>
-
-                  <div className="dashboard-due-date">
-                    <Clock3 size={14} />
-
-                    {new Date(action.dueDate!).toLocaleDateString("fr-FR")}
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {upcomingActions.length === 0 && (
               <div className="listitem muted">Aucune échéance à venir.</div>
@@ -333,27 +355,38 @@ export default function Dashboard({ data, onOpenProject }: DashboardProps) {
             }}
           >
             <div className="dashboard-hours-list">
-              {hoursByProject.map(({ project, hours }) => (
-                <div key={project.id} className="dashboard-hours-row">
-                  <div className="between">
-                    <strong>{project.name}</strong>
+              {hoursByProject.map(({ project, hours }) => {
+                const projectColor = getProjectColor(project.color);
 
-                    <span>
-                      {formatHours(hours)}
+                return (
+                  <div key={project.id} className="dashboard-hours-row">
+                    <div className="between">
+                      <div className="row">
+                        <span
+                          className="project-color-dot"
+                          style={{
+                            backgroundColor: projectColor.solid,
+                          }}
+                        />
 
-                      {" h"}
-                    </span>
+                        <strong>{project.name}</strong>
+                      </div>
+
+                      <span>{formatHours(hours)} h</span>
+                    </div>
+
+                    <div className="dashboard-hours-bar">
+                      <span
+                        style={{
+                          width: `${(hours / maxProjectHours) * 100}%`,
+
+                          backgroundColor: projectColor.solid,
+                        }}
+                      />
+                    </div>
                   </div>
-
-                  <div className="dashboard-hours-bar">
-                    <span
-                      style={{
-                        width: `${(hours / maxProjectHours) * 100}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
 
               {hoursByProject.length === 0 && (
                 <div className="muted">Aucun temps saisi ce mois-ci.</div>
@@ -446,7 +479,7 @@ export default function Dashboard({ data, onOpenProject }: DashboardProps) {
             {highRisks.length > 0 && (
               <div className="card dashboard-alert-card">
                 <div className="row">
-                  <Bug size={18} />
+                  <ShieldAlert size={18} />
 
                   <strong>Risques</strong>
                 </div>

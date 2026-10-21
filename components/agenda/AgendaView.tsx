@@ -1,16 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-
 import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
-
+import { getProjectColor } from "@/lib/config/projectColors";
 import type { Action, ActionType, Project } from "@/types";
 
 interface AgendaViewProps {
   actions: Action[];
-
   projects: Project[];
-
   onEdit: (action: Action) => void;
 }
 
@@ -18,37 +15,21 @@ type AgendaEventKind = "START" | "DUE";
 
 interface AgendaEvent {
   id: string;
-
   date: Date;
-
   kind: AgendaEventKind;
-
   action: Action;
 }
 
 const typeLabels: Record<ActionType, string> = {
   ACTION: "Action",
-  TASK: "Tâche",
   BUG: "Bug",
-  INCIDENT: "Incident",
   EVOLUTION: "Évolution",
   JALON: "Jalon",
 };
 
-const typeClasses: Record<ActionType, string> = {
-  ACTION: "agenda-action",
-  TASK: "agenda-task",
-  BUG: "agenda-bug",
-  INCIDENT: "agenda-incident",
-  EVOLUTION: "agenda-evolution",
-  JALON: "agenda-milestone",
-};
-
 const actionTypes: ActionType[] = [
   "ACTION",
-  "TASK",
   "BUG",
-  "INCIDENT",
   "EVOLUTION",
   "JALON",
 ];
@@ -77,23 +58,22 @@ function sameDay(left: Date, right: Date) {
 }
 
 function isOverdue(event: AgendaEvent) {
-  /*
-   * Une date de début passée
-   * n'est pas un retard.
-   */
-  if (event.kind !== "DUE") {
-    return false;
-  }
+  if (event.kind !== "DUE") return false;
 
-  if (event.action.status === "DONE" || event.action.status === "CANCELLED") {
+  if (
+    event.action.status === "DONE" ||
+    event.action.status === "CANCELLED"
+  ) {
     return false;
   }
 
   const today = new Date();
-
   today.setHours(0, 0, 0, 0);
 
-  return event.date.getTime() < today.getTime();
+  const dueDate = new Date(event.date);
+  dueDate.setHours(0, 0, 0, 0);
+
+  return dueDate.getTime() < today.getTime();
 }
 
 export default function AgendaView({
@@ -104,24 +84,12 @@ export default function AgendaView({
   const now = new Date();
 
   const [selectedMonth, setSelectedMonth] = useState(
-    new Date(now.getFullYear(), now.getMonth(), 1),
+    new Date(now.getFullYear(), now.getMonth(), 1)
   );
 
   const [projectFilter, setProjectFilter] = useState("ALL");
-
   const [typeFilter, setTypeFilter] = useState<ActionType | "ALL">("ALL");
 
-  /*
-   * =================================
-   * CONSTRUCTION DES ÉVÉNEMENTS
-   * =================================
-   *
-   * Une même action peut générer
-   * deux entrées Agenda :
-   *
-   * - date de début
-   * - échéance
-   */
   const events = useMemo(() => {
     const result: AgendaEvent[] = [];
 
@@ -129,29 +97,21 @@ export default function AgendaView({
       if (action.startDate) {
         result.push({
           id: `${action.id}-start`,
-
           date: new Date(action.startDate),
-
           kind: "START",
-
           action,
         });
       }
 
       if (action.dueDate) {
-        /*
-         * Si début et échéance
-         * sont le même jour,
-         * on préfère n'afficher
-         * que l'échéance.
-         */
-        const due = new Date(action.dueDate);
+        const dueDate = new Date(action.dueDate);
+        const startDate = action.startDate
+          ? new Date(action.startDate)
+          : null;
 
-        const start = action.startDate ? new Date(action.startDate) : null;
-
-        if (start && sameDay(start, due)) {
+        if (startDate && sameDay(startDate, dueDate)) {
           const startIndex = result.findIndex(
-            (event) => event.id === `${action.id}-start`,
+            (event) => event.id === `${action.id}-start`
           );
 
           if (startIndex >= 0) {
@@ -161,11 +121,8 @@ export default function AgendaView({
 
         result.push({
           id: `${action.id}-due`,
-
-          date: due,
-
+          date: dueDate,
           kind: "DUE",
-
           action,
         });
       }
@@ -175,38 +132,32 @@ export default function AgendaView({
       .filter(
         (event) =>
           event.date.getFullYear() === selectedMonth.getFullYear() &&
-          event.date.getMonth() === selectedMonth.getMonth(),
+          event.date.getMonth() === selectedMonth.getMonth()
       )
       .filter(
         (event) =>
-          projectFilter === "ALL" || event.action.projectId === projectFilter,
+          projectFilter === "ALL" ||
+          event.action.projectId === projectFilter
       )
       .filter(
-        (event) => typeFilter === "ALL" || event.action.type === typeFilter,
+        (event) =>
+          typeFilter === "ALL" || event.action.type === typeFilter
       )
-      .sort((a, b) => a.date.getTime() - b.date.getTime());
+      .sort((left, right) => left.date.getTime() - right.date.getTime());
   }, [actions, selectedMonth, projectFilter, typeFilter]);
 
-  /*
-   * Événements regroupés
-   * par journée.
-   */
   const groupedEvents = useMemo(() => {
     const groups = new Map<string, AgendaEvent[]>();
 
     events.forEach((event) => {
       const key = [
         event.date.getFullYear(),
-
         String(event.date.getMonth() + 1).padStart(2, "0"),
-
         String(event.date.getDate()).padStart(2, "0"),
       ].join("-");
 
       const group = groups.get(key) ?? [];
-
       group.push(event);
-
       groups.set(key, group);
     });
 
@@ -216,42 +167,33 @@ export default function AgendaView({
   function changeMonth(offset: number) {
     setSelectedMonth(
       (current) =>
-        new Date(current.getFullYear(), current.getMonth() + offset, 1),
+        new Date(
+          current.getFullYear(),
+          current.getMonth() + offset,
+          1
+        )
     );
   }
 
   return (
     <>
-      {/* ============================= */}
-      {/* EN-TÊTE                      */}
-      {/* ============================= */}
-
       <div className="between">
         <div>
           <h1>Agenda</h1>
-
           <p className="muted">
             Vue automatiquement calculée depuis les dates des actions.
           </p>
         </div>
       </div>
 
-      {/* ============================= */}
-      {/* OUTILS                       */}
-      {/* ============================= */}
-
-      <div
-        className="card"
-        style={{
-          marginTop: 20,
-        }}
-      >
+      <div className="card" style={{ marginTop: 20 }}>
         <div className="agenda-toolbar">
           <div className="month-selector">
             <button
               type="button"
               className="btn ghost"
               onClick={() => changeMonth(-1)}
+              aria-label="Mois précédent"
             >
               <ChevronLeft size={17} />
             </button>
@@ -264,6 +206,7 @@ export default function AgendaView({
               type="button"
               className="btn ghost"
               onClick={() => changeMonth(1)}
+              aria-label="Mois suivant"
             >
               <ChevronRight size={17} />
             </button>
@@ -277,7 +220,6 @@ export default function AgendaView({
               onChange={(event) => setProjectFilter(event.target.value)}
             >
               <option value="ALL">Tous les projets</option>
-
               {projects.map((project) => (
                 <option key={project.id} value={project.id}>
                   {project.name}
@@ -287,20 +229,10 @@ export default function AgendaView({
           </label>
         </div>
 
-        {/* =========================== */}
-        {/* FILTRES TYPES              */}
-        {/* =========================== */}
-
-        <div
-          className="tabs"
-          style={{
-            marginTop: 18,
-            marginBottom: 0,
-          }}
-        >
+        <div className="tabs" style={{ marginTop: 18, marginBottom: 0 }}>
           <button
             type="button"
-            className={"tab " + (typeFilter === "ALL" ? "active" : "")}
+            className={`tab ${typeFilter === "ALL" ? "active" : ""}`}
             onClick={() => setTypeFilter("ALL")}
           >
             Tous
@@ -310,7 +242,7 @@ export default function AgendaView({
             <button
               type="button"
               key={type}
-              className={"tab " + (typeFilter === type ? "active" : "")}
+              className={`tab ${typeFilter === type ? "active" : ""}`}
               onClick={() => setTypeFilter(type)}
             >
               {typeLabels[type]}
@@ -319,33 +251,13 @@ export default function AgendaView({
         </div>
       </div>
 
-      {/* ============================= */}
-      {/* LÉGENDE                      */}
-      {/* ============================= */}
-
-      <div
-        className="row agenda-legend"
-        style={{
-          marginTop: 18,
-        }}
-      >
+      <div className="row agenda-legend" style={{ marginTop: 18 }}>
         <span className="agenda-kind start">Début</span>
-
         <span className="agenda-kind due">Échéance</span>
-
         <span className="agenda-kind overdue">En retard</span>
       </div>
 
-      {/* ============================= */}
-      {/* AGENDA                       */}
-      {/* ============================= */}
-
-      <div
-        className="agenda-list"
-        style={{
-          marginTop: 16,
-        }}
-      >
+      <div className="agenda-list" style={{ marginTop: 16 }}>
         {groupedEvents.map(([dateKey, dayEvents]) => {
           const day = dayEvents[0].date;
 
@@ -358,21 +270,21 @@ export default function AgendaView({
               <div className="agenda-day-events">
                 {dayEvents.map((event) => {
                   const overdue = isOverdue(event);
+                  const project = projects.find(
+                    (item) => item.id === event.action.projectId
+                  );
+                  const projectColor = getProjectColor(project?.color);
 
                   return (
                     <div
                       key={event.id}
-                      className={[
-                        "agenda-entry",
-
-                        typeClasses[event.action.type],
-
-                        overdue ? "is-overdue" : "",
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
+                      className={`agenda-entry ${overdue ? "is-overdue" : ""}`}
                     >
-                      <div className="agenda-entry-marker" aria-hidden="true" />
+                      <div
+                        className="agenda-entry-marker"
+                        aria-hidden="true"
+                        style={{ backgroundColor: projectColor.solid }}
+                      />
 
                       <div className="agenda-entry-content">
                         <div className="row">
@@ -403,11 +315,32 @@ export default function AgendaView({
                           {event.action.title}
                         </div>
 
-                        <small className="muted">
-                          {event.action.project?.name}
+                        <div className="row">
+                          {project && (
+                            <span
+                              className="agenda-project-badge"
+                              style={{
+                                color: projectColor.text,
+                                backgroundColor: projectColor.soft,
+                                borderColor: projectColor.border,
+                              }}
+                            >
+                              <span
+                                className="project-color-dot"
+                                style={{
+                                  backgroundColor: projectColor.solid,
+                                }}
+                              />
+                              {project.name}
+                            </span>
+                          )}
 
-                          {event.action.owner && ` · ${event.action.owner}`}
-                        </small>
+                          {event.action.owner && (
+                            <small className="muted">
+                              Responsable : {event.action.owner}
+                            </small>
+                          )}
+                        </div>
                       </div>
 
                       <button
@@ -427,7 +360,9 @@ export default function AgendaView({
         })}
 
         {groupedEvents.length === 0 && (
-          <div className="card muted">Aucune action datée pour ce mois.</div>
+          <div className="card muted">
+            Aucune action datée pour ce mois.
+          </div>
         )}
       </div>
     </>

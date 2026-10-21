@@ -549,30 +549,6 @@ textarea {
   margin-right: 12px;
 }
 
-.agenda-action .agenda-entry-marker {
-  background: #c7d2fe;
-}
-
-.agenda-task .agenda-entry-marker {
-  background: #bfdbfe;
-}
-
-.agenda-bug .agenda-entry-marker {
-  background: #fecdd3;
-}
-
-.agenda-incident .agenda-entry-marker {
-  background: #fed7aa;
-}
-
-.agenda-evolution .agenda-entry-marker {
-  background: #ddd6fe;
-}
-
-.agenda-milestone .agenda-entry-marker {
-  background: #a7f3d0;
-}
-
 .agenda-entry.is-overdue {
   border-color: #fecdd3;
   background: #fffafb;
@@ -739,4 +715,34 @@ textarea {
   .dashboard-bottom-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.project-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.project-color-dot {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 11px;
+  border-radius: 999px;
+}
+
+.project-card-footer {
+  margin-top: 15px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.agenda-project-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-top: 5px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid;
+  border-radius: 999px;
 }

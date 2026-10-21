@@ -12,9 +12,7 @@ const actionPrefixes: Record<
   string
 > = {
   ACTION: "ACT",
-  TASK: "TSK",
   BUG: "BUG",
-  INCIDENT: "INC",
   EVOLUTION: "EVO",
   JALON: "JAL",
 };
@@ -26,9 +24,7 @@ const actionPrefixes: Record<
  * Exemples :
  *
  * ACTION    -> ACT-0001
- * TASK      -> TSK-0001
  * BUG       -> BUG-0001
- * INCIDENT  -> INC-0001
  * EVOLUTION -> EVO-0001
  * JALON     -> JAL-0001
  */

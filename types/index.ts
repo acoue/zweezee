@@ -1,3 +1,5 @@
+import type { ProjectColorKey,} from "@/lib/config/projectColors";
+
 export type ViewId =
   | "dashboard"
   | "projects"
@@ -26,9 +28,7 @@ export type Priority =
 
 export type ActionType =
   | "ACTION"
-  | "TASK"
   | "BUG"
-  | "INCIDENT"
   | "EVOLUTION"
   | "JALON";
 
@@ -42,6 +42,7 @@ export type ActionStatus =
 export interface RelatedProject {
   id: string;
   name: string;
+  color: string;
 }
 
 export interface RelatedAction {
@@ -63,7 +64,7 @@ export interface Project {
   progress?: number | null;
 
   health: Health;
-  color: string;
+  color: ProjectColorKey;
 
   createdAt?: string;
   updatedAt?: string;

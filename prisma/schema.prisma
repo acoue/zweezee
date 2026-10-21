@@ -22,9 +22,7 @@ enum Priority {
 
 enum ActionType {
   ACTION
-  TASK
   BUG
-  INCIDENT
   EVOLUTION
   JALON
 }
